@@ -70,7 +70,41 @@ if (Qbo::isConnected()) {
 }
 ```
 
-Each module (`invoices`, `payments`, `creditNotes`, `customers`) exposes `find()`, `query()`, `all()`, `create()`, `update()` and `delete()`.
+Each of `invoices`, `payments`, `creditNotes`, `customers` exposes `find()`, `query()`, `all()`, `create()`, `update()` and `delete()`.
+
+## Default mappings
+
+Once a company is connected, the settings page shows a **Default mappings** section. Pick a default **item** (used on invoice / credit-note lines), a default **income account**, and a default **deposit-to account** (used when recording payments). These are pulled live from the connected company's Chart of Accounts and Items.
+
+When a default is set, it is applied automatically to any `create()` payload that omits the corresponding reference:
+
+```php
+// No ItemRef on the line — the default item is filled in for you.
+Qbo::invoices()->create([
+    'CustomerRef' => ['value' => '1'],
+    'Line' => [[
+        'Amount' => 100.00,
+        'DetailType' => 'SalesItemLineDetail',
+        'SalesItemLineDetail' => ['Qty' => 1, 'UnitPrice' => 100.00],
+    ]],
+]);
+
+// No DepositToAccountRef — the default deposit account is filled in.
+Qbo::payments()->create([
+    'CustomerRef' => ['value' => '1'],
+    'TotalAmt' => 100.00,
+]);
+```
+
+You can also read the reference data yourself for building your own selects:
+
+```php
+Qbo::items()->options();               // ['3' => 'Concrete', ...]
+Qbo::accounts()->options('Income');    // income accounts only
+Qbo::accounts()->options('Bank');      // bank accounts only
+```
+
+Anything you pass explicitly always wins over the configured default.
 
 ## Testing
 

@@ -48,8 +48,19 @@ class QuickbooksConnection
             'ClientSecret' => $settings->client_secret,
             'RedirectURI' => $this->redirectUri(),
             'scope' => implode(' ', $this->config['scopes']),
-            'baseUrl' => $settings->environment,
+            'baseUrl' => $this->baseUrlFor($settings->environment),
         ]);
+    }
+
+    /**
+     * Map our "sandbox"/"production" environment onto the keyword the Intuit
+     * SDK expects for its baseUrl ("Development"/"Production"). The SDK uses
+     * this to build the API host, so passing the raw "sandbox" string makes
+     * it try to resolve a host literally named "sandbox".
+     */
+    protected function baseUrlFor(string $environment): string
+    {
+        return $environment === 'production' ? 'Production' : 'Development';
     }
 
     /**
@@ -91,7 +102,7 @@ class QuickbooksConnection
             'accessTokenKey' => $token->access_token,
             'refreshTokenKey' => $token->refresh_token,
             'QBORealmID' => $token->realm_id,
-            'baseUrl' => $token->environment,
+            'baseUrl' => $this->baseUrlFor($token->environment),
         ]);
 
         $service->setMinorVersion((string) $this->config['minor_version']);

@@ -2,9 +2,11 @@
 
 namespace Bocapro\QuickbooksConnector;
 
+use Bocapro\QuickbooksConnector\Modules\Accounts;
 use Bocapro\QuickbooksConnector\Modules\CreditNotes;
 use Bocapro\QuickbooksConnector\Modules\Customers;
 use Bocapro\QuickbooksConnector\Modules\Invoices;
+use Bocapro\QuickbooksConnector\Modules\Items;
 use Bocapro\QuickbooksConnector\Modules\Payments;
 use Bocapro\QuickbooksConnector\Support\QuickbooksConnection;
 
@@ -44,5 +46,15 @@ class QuickbooksConnector
     public function customers(): Customers
     {
         return new Customers($this->connection);
+    }
+
+    public function accounts(): Accounts
+    {
+        return new Accounts($this->connection);
+    }
+
+    public function items(): Items
+    {
+        return new Items($this->connection);
     }
 }

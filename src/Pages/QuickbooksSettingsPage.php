@@ -45,6 +45,9 @@ class QuickbooksSettingsPage extends Page implements HasForms
             'client_id' => $settings->client_id,
             'client_secret' => $settings->client_secret,
             'redirect_uri' => Qbo::connection()->redirectUri(),
+            'default_item_id' => $settings->default_item_id,
+            'default_income_account_id' => $settings->default_income_account_id,
+            'default_deposit_account_id' => $settings->default_deposit_account_id,
         ]);
     }
 
@@ -117,8 +120,61 @@ class QuickbooksSettingsPage extends Page implements HasForms
                                     ]),
                             ),
                     ]),
+                Section::make(__('quickbooks-connector::messages.mappings.title'))
+                    ->description(__('quickbooks-connector::messages.mappings.hint'))
+                    ->visible(fn (): bool => $this->isConnected())
+                    ->schema([
+                        Select::make('default_item_id')
+                            ->label(__('quickbooks-connector::messages.mappings.default_item'))
+                            ->options(fn (): array => $this->itemOptions())
+                            ->searchable()
+                            ->native(false)
+                            ->placeholder(__('quickbooks-connector::messages.mappings.none')),
+                        Select::make('default_income_account_id')
+                            ->label(__('quickbooks-connector::messages.mappings.default_income_account'))
+                            ->options(fn (): array => $this->accountOptions('Income'))
+                            ->searchable()
+                            ->native(false)
+                            ->placeholder(__('quickbooks-connector::messages.mappings.none')),
+                        Select::make('default_deposit_account_id')
+                            ->label(__('quickbooks-connector::messages.mappings.default_deposit_account'))
+                            ->options(fn (): array => $this->accountOptions('Bank'))
+                            ->searchable()
+                            ->native(false)
+                            ->placeholder(__('quickbooks-connector::messages.mappings.none')),
+                    ]),
             ])
             ->statePath('data');
+    }
+
+    /**
+     * Item options pulled from the connected company. Failures degrade to an
+     * empty list rather than breaking the settings page.
+     *
+     * @return array<string, string>
+     */
+    protected function itemOptions(): array
+    {
+        try {
+            return Qbo::items()->options();
+        } catch (\Throwable) {
+            return [];
+        }
+    }
+
+    /**
+     * Account options (optionally filtered by AccountType) from the connected
+     * company, degrading to an empty list on failure.
+     *
+     * @return array<string, string>
+     */
+    protected function accountOptions(?string $accountType = null): array
+    {
+        try {
+            return Qbo::accounts()->options($accountType);
+        } catch (\Throwable) {
+            return [];
+        }
     }
 
     public function save(): void
@@ -129,6 +185,9 @@ class QuickbooksSettingsPage extends Page implements HasForms
         $settings->environment = $state['environment'];
         $settings->client_id = $state['client_id'];
         $settings->client_secret = $state['client_secret'];
+        $settings->default_item_id = $state['default_item_id'] ?? null;
+        $settings->default_income_account_id = $state['default_income_account_id'] ?? null;
+        $settings->default_deposit_account_id = $state['default_deposit_account_id'] ?? null;
         $settings->save();
 
         Notification::make()

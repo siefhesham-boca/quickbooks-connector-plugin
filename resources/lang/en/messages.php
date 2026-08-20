@@ -20,6 +20,14 @@ return [
         'status_connected' => 'Connected',
         'status_disconnected' => 'Not connected',
     ],
+    'mappings' => [
+        'title' => 'Default mappings',
+        'hint' => 'Choose the default item and accounts used when pushing data to QuickBooks. These apply when a call does not specify its own.',
+        'default_item' => 'Default item (invoice/credit note lines)',
+        'default_income_account' => 'Default income account',
+        'default_deposit_account' => 'Default deposit-to account (payments)',
+        'none' => 'None',
+    ],
     'oauth' => [
         'connected' => 'QuickBooks company connected successfully.',
         'missing_params' => 'QuickBooks did not return an authorization code.',

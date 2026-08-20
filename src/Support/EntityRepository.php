@@ -3,6 +3,7 @@
 namespace Bocapro\QuickbooksConnector\Support;
 
 use Bocapro\QuickbooksConnector\Exceptions\QuickbooksException;
+use Bocapro\QuickbooksConnector\Settings\QuickbooksSettings;
 
 /**
  * Thin CRUD wrapper around a single QuickBooks Online entity type.
@@ -13,6 +14,14 @@ use Bocapro\QuickbooksConnector\Exceptions\QuickbooksException;
 abstract class EntityRepository
 {
     public function __construct(protected QuickbooksConnection $connection) {}
+
+    /**
+     * The connected company's default mappings (item / accounts).
+     */
+    protected function settings(): QuickbooksSettings
+    {
+        return app(QuickbooksSettings::class);
+    }
 
     /**
      * The QuickBooks entity name, e.g. "Invoice", "Payment", "CreditMemo".
@@ -119,7 +128,8 @@ abstract class EntityRepository
     {
         $error = $this->connection->dataService()->getLastError();
 
-        if ($error !== null) {
+        // The SDK returns false (not null) when the last call succeeded.
+        if (is_object($error)) {
             throw QuickbooksException::fromSdkError($error);
         }
     }
