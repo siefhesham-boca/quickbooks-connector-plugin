@@ -1,0 +1,11 @@
+# Exclude dev files from the distributed package
+/.github            export-ignore
+/tests              export-ignore
+/.gitattributes     export-ignore
+/.gitignore         export-ignore
+/phpunit.xml.dist   export-ignore
+/phpstan.neon.dist  export-ignore
+/pint.json          export-ignore
+
+*.php text eol=lf
+*.blade.php text eol=lf
