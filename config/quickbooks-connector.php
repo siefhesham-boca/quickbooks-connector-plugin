@@ -11,27 +11,12 @@ return [
     | QuickBooks Online OAuth2 Credentials
     |--------------------------------------------------------------------------
     |
-    | These are issued when you create an app in the Intuit Developer portal
-    | (https://developer.intuit.com). They may also be managed at runtime from
-    | the plugin's settings page, which persists them to the tokens table.
+    | The environment, client id and client secret are NOT configured here or
+    | in your .env. They are entered by the user on the plugin's settings page
+    | and persisted (secret encrypted) via spatie/laravel-settings. Only the
+    | non-editable options below live in config.
     |
     */
-
-    'client_id' => env('QBO_CLIENT_ID'),
-
-    'client_secret' => env('QBO_CLIENT_SECRET'),
-
-    /*
-    |--------------------------------------------------------------------------
-    | Environment
-    |--------------------------------------------------------------------------
-    |
-    | Either "sandbox" or "production". Determines which Intuit base URL the
-    | SDK talks to.
-    |
-    */
-
-    'environment' => env('QBO_ENVIRONMENT', 'sandbox'),
 
     /*
     |--------------------------------------------------------------------------

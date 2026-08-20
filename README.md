@@ -24,16 +24,6 @@ Optionally publish the config:
 php artisan vendor:publish --tag="quickbooks-connector-config"
 ```
 
-Set your Intuit developer app credentials in `.env`:
-
-```dotenv
-QBO_CLIENT_ID=...
-QBO_CLIENT_SECRET=...
-QBO_ENVIRONMENT=sandbox
-```
-
-> The **Redirect URI** is fixed by the package's callback route. Copy the value shown on the QuickBooks settings page and register it on your Intuit app — you never set it in `.env` or the UI.
-
 Register the plugin on your panel:
 
 ```php
@@ -42,9 +32,14 @@ use Bocapro\QuickbooksConnector\QuickbooksConnectorPlugin;
 $panel->plugin(QuickbooksConnectorPlugin::make());
 ```
 
-## Connecting
+## Configuring & connecting
 
-Open the **QuickBooks Online** page under the *Integrations* navigation group and click **Connect to QuickBooks**. After authorizing on Intuit you'll be redirected back and the company tokens are stored (encrypted). Tokens refresh automatically.
+There is nothing to put in `.env`. Everything is managed from the plugin's settings page in your panel:
+
+1. Open the **QuickBooks Online** page under the *Integrations* navigation group.
+2. Choose the **environment** (Sandbox or Production) and paste the **Client ID** and **Client secret** from your [Intuit developer app](https://developer.intuit.com), then **Save**. The client secret is stored encrypted at rest.
+3. Copy the **Redirect URI** shown on the page and register it verbatim on your Intuit app. It is fixed by the package's callback route and is not editable.
+4. Click **Connect to QuickBooks**. After authorizing on Intuit you'll be redirected back and the company tokens are stored (encrypted). Tokens refresh automatically.
 
 ## Usage
 
