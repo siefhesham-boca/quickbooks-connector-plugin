@@ -2,6 +2,7 @@
 
 namespace Bocapro\QuickbooksConnector\Support;
 
+use Illuminate\Support\Carbon;
 use QuickBooksOnline\API\DataService\DataService;
 use RuntimeException;
 use Bocapro\QuickbooksConnector\Models\QuickbooksToken;
@@ -115,15 +116,32 @@ class QuickbooksConnection
         $token->update([
             'access_token' => $refreshed->getAccessToken(),
             'refresh_token' => $refreshed->getRefreshToken(),
-            'access_token_expires_at' => now()->addSeconds(
-                (int) $refreshed->getAccessTokenExpiresAt() - time()
-            ),
+            'access_token_expires_at' => $this->expiresAt($refreshed->getAccessTokenExpiresAt()),
         ]);
 
         // Reset cached service so it is rebuilt with the fresh token.
         $this->dataService = null;
 
         return $token->refresh();
+    }
+
+    /**
+     * Normalise the expiry value returned by the Intuit SDK into a Carbon
+     * instance. Depending on SDK version this is either an absolute datetime
+     * string (e.g. "2026-08-20 08:12:41") or a unix timestamp — never a
+     * relative "seconds from now" duration.
+     */
+    protected function expiresAt(mixed $value): ?Carbon
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        if (is_numeric($value)) {
+            return Carbon::createFromTimestamp((int) $value);
+        }
+
+        return Carbon::parse($value);
     }
 
     protected function token(): QuickbooksToken

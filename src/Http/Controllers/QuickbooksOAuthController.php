@@ -5,6 +5,7 @@ namespace Bocapro\QuickbooksConnector\Http\Controllers;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Carbon;
 use Bocapro\QuickbooksConnector\Support\QuickbooksConnection;
 
 class QuickbooksOAuthController extends Controller
@@ -52,18 +53,33 @@ class QuickbooksOAuthController extends Controller
             'realm_id' => $realmId,
             'access_token' => $token->getAccessToken(),
             'refresh_token' => $token->getRefreshToken(),
-            'access_token_expires_at' => now()->addSeconds(
-                (int) $token->getAccessTokenExpiresAt() - time()
-            ),
-            'refresh_token_expires_at' => now()->addSeconds(
-                (int) $token->getRefreshTokenExpiresAt() - time()
-            ),
+            'access_token_expires_at' => $this->expiresAt($token->getAccessTokenExpiresAt()),
+            'refresh_token_expires_at' => $this->expiresAt($token->getRefreshTokenExpiresAt()),
             'environment' => $environment,
         ]);
 
         return $this->redirectToSettings(
             success: __('quickbooks-connector::messages.oauth.connected'),
         );
+    }
+
+    /**
+     * Normalise the expiry value returned by the Intuit SDK into a Carbon
+     * instance. Depending on SDK version this is either an absolute datetime
+     * string (e.g. "2026-08-20 08:12:41") or a unix timestamp — never a
+     * relative "seconds from now" duration.
+     */
+    protected function expiresAt(mixed $value): ?Carbon
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        if (is_numeric($value)) {
+            return Carbon::createFromTimestamp((int) $value);
+        }
+
+        return Carbon::parse($value);
     }
 
     protected function redirectToSettings(?string $success = null, ?string $error = null): RedirectResponse
