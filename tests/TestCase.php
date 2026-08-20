@@ -48,5 +48,8 @@ class TestCase extends Orchestra
 
         $settingsMigration = include __DIR__.'/../database/settings/2024_01_01_000000_create_quickbooks_settings.php';
         $settingsMigration->up();
+
+        $mappingsMigration = include __DIR__.'/../database/settings/2024_01_02_000000_add_quickbooks_default_mappings.php';
+        $mappingsMigration->up();
     }
 }
